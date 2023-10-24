@@ -1,0 +1,4 @@
+raw_data_path: "data/raw_data.csv"
+preprocess_data_path: "data/preprocess_data.csv"
+label2id_path: "data/label2id.json"
+id2label_path: "data/id2label.json"

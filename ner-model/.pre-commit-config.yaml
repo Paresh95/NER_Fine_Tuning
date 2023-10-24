@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0 # Get the latest from: https://github.com/pre-commit/pre-commit-hooks/releases
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+      - id: black
+        language_version: python3.10.5
+  - repo: https://github.com/pycqa/flake8
+    rev: '5.0.4'
+    hooks:
+      - id: flake8
+        args: ['--max-line-length', '120', '--ignore', 'E501s, W503']
+  # - repo: local
+  #   hooks:
+  #     - id: coverage
+  #       name: coverage
+  #       language: system
+  #       entry: bash -c 'poetry run pytest -v --cov=ner_model --cov-fail-under=0 --cov-report term-missing' # if tests then change from 0
+  #       types: [python]
+  #       pass_filenames: false
