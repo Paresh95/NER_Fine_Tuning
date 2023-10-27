@@ -1,15 +1,18 @@
 import yaml
 import json
+import logging
 import pandas as pd
 from sklearn.metrics import accuracy_score
 import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer, BertForTokenClassification
-from typing import Any
+from typing import Any, Tuple, List
 from seqeval.metrics import classification_report
 
 
-def tokenize_and_preserve_labels(sentence, text_labels, tokenizer):
+def tokenize_and_preserve_labels(
+    sentence: str, text_labels: str, tokenizer: Any
+) -> Tuple[List[str], List[str]]:
     """
     Word piece tokenization makes it difficult to match word labels
     back up with individual word pieces. This function tokenizes each
@@ -39,16 +42,17 @@ def tokenize_and_preserve_labels(sentence, text_labels, tokenizer):
 
 
 class dataset(Dataset):
-    def __init__(self, dataframe, tokenizer, max_len):
-        self.len = len(dataframe)
-        self.data = dataframe
+    def __init__(self, df: pd.DataFrame, tokenizer: Any, max_len: int, label2id: dict):
+        self.len = len(df)
+        self.df = df
         self.tokenizer = tokenizer
         self.max_len = max_len
+        self.label2id = label2id
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> dict:
         # step 1: tokenize (and adapt corresponding labels)
-        sentence = self.data.sentence[index]
-        word_labels = self.data.word_labels[index]
+        sentence = self.df.sentence[index]
+        word_labels = self.df.word_labels[index]
         tokenized_sentence, labels = tokenize_and_preserve_labels(
             sentence, word_labels, self.tokenizer
         )
@@ -80,7 +84,7 @@ class dataset(Dataset):
         # step 5: convert tokens to input ids
         ids = self.tokenizer.convert_tokens_to_ids(tokenized_sentence)
 
-        label_ids = [label2id[label] for label in labels]
+        label_ids = [self.label2id[label] for label in labels]
         # the following line is deprecated
         # label_ids = [label if label != 0 else -100 for label in label_ids]
 
@@ -90,8 +94,34 @@ class dataset(Dataset):
             "targets": torch.tensor(label_ids, dtype=torch.long),
         }
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.len
+
+
+def create_train_test(
+    df: pd.DataFrame,
+    train_size: float,
+    tokenizer: Any,
+    max_length: int,
+    seed: int,
+    label2id: dict,
+    df_sample_size: float = 1.0,
+    verbose: bool = True,
+) -> Tuple[Dataset, Dataset]:
+    df = df.sample(frac=df_sample_size, random_state=seed)
+    train_dataset = df.sample(frac=train_size, random_state=seed)
+    test_dataset = df.drop(train_dataset.index).reset_index(drop=True)
+    train_dataset = train_dataset.reset_index(drop=True)
+
+    if verbose:
+        print("FULL Dataset: {}".format(df.shape))
+        print("TRAIN Dataset: {}".format(train_dataset.shape))
+        print("TEST Dataset: {}".format(test_dataset.shape))
+
+    training_set = dataset(train_dataset, tokenizer, max_length, label2id)
+    testing_set = dataset(test_dataset, tokenizer, max_length, label2id)
+
+    return training_set, testing_set
 
 
 def train(
@@ -100,8 +130,9 @@ def train(
     epochs: int,
     max_grad_norm: int,
     optimizer: torch.optim.Adam,
+    device: str,
     verbose: bool = True,
-):
+) -> Any:
     for epoch in range(epochs):
         print(f"Training epoch: {epoch + 1}")
 
@@ -148,12 +179,10 @@ def train(
             )
             tr_accuracy += tmp_tr_accuracy
 
-            # gradient clipping
             torch.nn.utils.clip_grad_norm_(
                 parameters=model.parameters(), max_norm=max_grad_norm
             )
 
-            # backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -170,8 +199,9 @@ def valid(
     model: Any,
     testing_loader: torch.utils.data.DataLoader,
     id2label: dict,
+    device: str,
     verbose: bool = True,
-):
+) -> Tuple[List[int], List[int]]:
     model.eval()
 
     eval_loss, eval_accuracy = 0, 0
@@ -234,50 +264,55 @@ def valid(
 
 
 def main():
-    return None
+    logging.basicConfig(
+        filename="ner_model.log",
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+    logging.info("Starting main function")
 
+    try:
+        with open("ner_model/static.yaml", "r") as f:
+            config = yaml.safe_load(f.read())
+    except Exception as e:
+        logging.error(f"Error reading static.yaml: {e}")
+        return
 
-if __name__ == "__main__":
     device = "mps" if torch.backends.mps.is_available() else "cpu"
-    print(f"Device: {device}")
-    with open("ner_model/static.yaml", "r") as f:
-        config = yaml.safe_load(f.read())
-
-    MAX_LEN = 128
-    TRAIN_BATCH_SIZE = 4
-    VALID_BATCH_SIZE = 2
-    EPOCHS = 1
-    LEARNING_RATE = 1e-05
-    MAX_GRAD_NORM = 10
-    train_size = 0.8
-    seed = 23
+    max_length = config["max_length"]
+    train_batch_size = config["train_batch_size"]
+    valid_batch_size = config["valid_batch_size"]
+    epochs = config["epochs"]
+    learning_rate = config["learning_rate"]
+    max_gradient_norm = config["max_gradient_norm"]
+    df_sample_size = config["df_sample_size"]
+    train_size = config["train_size"]
+    seed = config["seed"]
     tokenizer = BertTokenizer.from_pretrained(config["hugging_face_model_path"])
 
     df = pd.read_csv(config["preprocess_data_path"])
-    print(df.shape)
-
     with open(config["label2id_path"], "r") as f:
         label2id = json.load(f)
     with open(config["id2label_path"], "r") as f:
         id2label = json.load(f)
+        id2label = {int(k): v for k, v in id2label.items()}
 
-    train_dataset = df.sample(frac=train_size, random_state=seed)
-    test_dataset = df.drop(train_dataset.index).reset_index(drop=True)
-    train_dataset = train_dataset.reset_index(drop=True)
-
-    print("FULL Dataset: {}".format(df.shape))
-    print("TRAIN Dataset: {}".format(train_dataset.shape))
-    print("TEST Dataset: {}".format(test_dataset.shape))
-
-    training_set = dataset(train_dataset, tokenizer, MAX_LEN)
-    testing_set = dataset(test_dataset, tokenizer, MAX_LEN)
-
-    train_params = {"batch_size": TRAIN_BATCH_SIZE, "shuffle": True, "num_workers": 0}
-
-    test_params = {"batch_size": VALID_BATCH_SIZE, "shuffle": True, "num_workers": 0}
-
+    training_set, testing_set = create_train_test(
+        df=df,
+        train_size=train_size,
+        tokenizer=tokenizer,
+        max_length=max_length,
+        seed=seed,
+        label2id=label2id,
+        df_sample_size=df_sample_size,
+        verbose=True,
+    )
+    train_params = {"batch_size": train_batch_size, "shuffle": True, "num_workers": 0}
+    test_params = {"batch_size": valid_batch_size, "shuffle": True, "num_workers": 0}
     training_loader = DataLoader(training_set, **train_params)
     testing_loader = DataLoader(testing_set, **test_params)
+
+    logging.info("Loaded data")
 
     model = BertForTokenClassification.from_pretrained(
         config["hugging_face_model_path"],
@@ -287,14 +322,36 @@ if __name__ == "__main__":
     )
     model.to(device)
 
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate)
     trained_model = train(
-        training_loader, model, EPOCHS, MAX_GRAD_NORM, optimizer, verbose=True
+        training_loader,
+        model,
+        epochs,
+        max_gradient_norm,
+        optimizer,
+        device,
+        verbose=True,
     )
-    labels, predictions = valid(model, testing_loader, id2label, verbose=True)
-    print(classification_report([labels], [predictions]))
 
-    # save report
-    # add functionality to take a sub-sample of the data
-    # save model
+    logging.info("Trained model")
+
+    labels, predictions = valid(model, testing_loader, id2label, device, verbose=True)
+    report = classification_report([labels], [predictions])
+    print(report)
+
+    try:
+        with open(config["classification_report_path"], "w") as f:
+            f.write(report)
+    except Exception as e:
+        logging.error(f"Error writing to classification report: {e}")
+
+    tokenizer.save_pretrained(config["tokenizer_path"])
+    trained_model.save_pretrained(config["model_path"])
+
+    logging.info("Saved model and tokenizer")
+
+
+if __name__ == "__main__":
+    main()
+
     # model inference

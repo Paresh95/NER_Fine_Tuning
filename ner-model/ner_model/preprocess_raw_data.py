@@ -19,7 +19,7 @@ def preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int], Dict[int
         .transform(lambda x: ",".join(x))
     )
     label2id = {k: v for v, k in enumerate(df.Tag.unique())}
-    id2label = {v: k for v, k in enumerate(df.Tag.unique())}
+    id2label = {int(v): k for v, k in enumerate(df.Tag.unique())}
     df = df[["sentence", "word_labels"]].drop_duplicates().reset_index(drop=True)
     return df, label2id, id2label
 
