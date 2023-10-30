@@ -265,7 +265,7 @@ def valid(
 
 def main():
     logging.basicConfig(
-        filename="ner_model.log",
+        filename="logs/ner_train_model.log",
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
@@ -274,9 +274,10 @@ def main():
     try:
         with open("ner_model/static.yaml", "r") as f:
             config = yaml.safe_load(f.read())
+    except yaml.YAMLError as e:
+        logging.error(f"Error parsing static.yaml: {e}")
     except Exception as e:
-        logging.error(f"Error reading static.yaml: {e}")
-        return
+        logging.error(f"Unexpected error reading static.yaml: {e}")
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     max_length = config["max_length"]
