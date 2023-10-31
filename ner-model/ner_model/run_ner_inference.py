@@ -1,92 +1,121 @@
 import logging
-import yaml
 import torch
-import json
-from transformers import AutoTokenizer, AutoModelForTokenClassification
-from typing import Any, List
-from transformers import pipeline
-import re
+import argparse
+from typing import Tuple, List
+from transformers import (
+    AutoTokenizer,
+    AutoModelForTokenClassification,
+    BertTokenizer,
+    BertForTokenClassification,
+)
+from abc import ABC, abstractmethod
+from ner_model.model_utils.inference import manual_inference_pipeline
+from ner_model.data_utils.utils import read_yaml_config
 
 
-def auto_inference_pipeline(
-    tokenizer: Any, model: Any, sentence: str, device: int = -1
-) -> dict:
-    """Uses CPU by default. Change device to 0 to use CUDA GPU."""
-    pipe = pipeline(
-        task="token-classification",
-        model=model,
-        tokenizer=tokenizer,
-        aggregation_strategy="simple",
-        device=device,
-    )
-    return pipe(sentence)
+class BaseModelInference(ABC):
+    def __init__(self):
+        logging.basicConfig(
+            filename="logs/ner_model_inference.log",
+            level=logging.DEBUG,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
+        self.logger = logging
+
+    @abstractmethod
+    def inference_logic(self) -> None:
+        raise NotImplementedError
 
 
-def manual_inference_pipeline(
-    tokenizer: Any, model: Any, sentence: str, max_length: int, device: str
-) -> List:
-    inputs = tokenizer(
-        sentence,
-        padding="max_length",
-        truncation=True,
-        max_length=max_length,
-        return_tensors="pt",
-    )
-    model.to(device)
-    ids = inputs["input_ids"].to(device)
-    mask = inputs["attention_mask"].to(device)
-    outputs = model(ids, mask)
-    logits = outputs[0]
-    active_logits = logits.view(-1, model.num_labels)
-    flattened_predictions = torch.argmax(active_logits, axis=1)
-    tokens = tokenizer.convert_ids_to_tokens(ids.squeeze().tolist())
-    token_predictions = [id2label[i] for i in flattened_predictions.cpu().numpy()]
-    wp_preds = list(zip(tokens, token_predictions))
+class InferenceNerModel(BaseModelInference):
+    """Conducts inference on pre-trained Named Entity Recognition model."""
 
-    word_level_predictions = []
-    for pair in wp_preds:
-        if (pair[0].startswith(" ##")) or (pair[0] in ["[CLS]", "[SEP]", "[PAD]"]):
-            continue
-        else:
-            word_level_predictions.append(pair[1])
+    def __init__(self, args):
+        super().__init__()
+        self.device = args.device
+        self.tokenizer_save_path = args.tokenizer_save_path
+        self.model_save_path = args.model_save_path
+        self.max_length = args.max_length
+        self.label2id_path = args.label2id_path
+        self.sentence = args.sentence
 
-    words = re.findall(r"\b\w+\b", sentence)
-    return list(zip(words, word_level_predictions))
+    def load_model_artifacts(self) -> Tuple[BertTokenizer, BertForTokenClassification]:
+        tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_save_path)
+        model = AutoModelForTokenClassification.from_pretrained(self.model_save_path)
+        return tokenizer, model
+
+    def score_data(
+        self, tokenizer: BertTokenizer, model: BertForTokenClassification
+    ) -> List:
+
+        output = manual_inference_pipeline(
+            tokenizer=tokenizer,
+            model=model,
+            sentence=self.sentence,
+            max_length=self.max_length,
+            device=self.device,
+        )
+        return output
+
+    def inference_logic(self) -> List:
+        self.logger.info("Starting inference logic")
+        self.logger.info("Loading model artifacts")
+        tokenizer, model = self.load_model_artifacts()
+
+        self.logger.info("Score data")
+        output = self.score_data(tokenizer, model)
+
+        self.logger.info("Finished inference logic")
+
+        return output
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        filename="logs/ner_model_inference.log",
-        level=logging.DEBUG,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-    logging.info("Starting main")
-
-    try:
-        with open("ner_model/static.yaml", "r") as f:
-            config = yaml.safe_load(f.read())
-    except yaml.YAMLError as e:
-        logging.error(f"Error parsing static.yaml: {e}")
-    except Exception as e:
-        logging.error(f"Unexpected error reading static.yaml: {e}")
-
-    logging.info("Importing key parameters, model and tokenizer")
-
-    tokenizer = AutoTokenizer.from_pretrained(config["tokenizer_path"])
-    model = AutoModelForTokenClassification.from_pretrained(config["model_path"])
-    max_length = config["max_length"]
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
-    with open(config["id2label_path"], "r") as f:
-        id2label = json.load(f)
-        id2label = {int(k): v for k, v in id2label.items()}
-
-    logging.info("Scoring data")
     sentence = "England has a capital called London. On wednesday, the Prime Minister will give a presentation"
-    output = manual_inference_pipeline(
-        tokenizer=tokenizer,
-        model=model,
-        sentence=sentence,
-        max_length=max_length,
-        device=device,
+    config = read_yaml_config(path="ner_model/static.yaml")
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--device",
+        "-d",
+        default="mps" if torch.backends.mps.is_available() else "cpu",
+        action="store",
+        help="Compute device to use with PyTorch model",
     )
-    print(output)
+    parser.add_argument(
+        "--model_save_path",
+        "-msp",
+        default=config["model_save_path"],
+        action="store",
+        help="Path to save model locally",
+    )
+    parser.add_argument(
+        "--tokenizer_save_path",
+        "-tsp",
+        default=config["tokenizer_save_path"],
+        action="store",
+        help="Path to save tokenizer locally",
+    )
+    parser.add_argument(
+        "--max_length",
+        "-ml",
+        default=config["max_length"],
+        action="store",
+        help="Max length of token sequences",
+    )
+    parser.add_argument(
+        "--label2id_path",
+        "-l2ip",
+        default=config["label2id_path"],
+        action="store",
+        help="label2id_path local path",
+    )
+    parser.add_argument(
+        "--sentence",
+        "-s",
+        default=sentence,
+        action="store",
+        help="Sentence to be scored",
+    )
+    args = parser.parse_args()
+    print(InferenceNerModel(args=args).inference_logic())

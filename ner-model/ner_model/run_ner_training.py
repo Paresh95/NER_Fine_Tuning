@@ -1,3 +1,4 @@
+import argparse
 import logging
 import pandas as pd
 import torch
@@ -23,7 +24,6 @@ class BaseModelTraining(ABC):
             format="%(asctime)s - %(levelname)s - %(message)s",
         )
         self.logger = logging
-        self.config = read_yaml_config(path="ner_model/static.yaml")
 
     @abstractmethod
     def training_logic(self) -> None:
@@ -33,21 +33,21 @@ class BaseModelTraining(ABC):
 class TrainNerModel(BaseModelTraining):
     """Trains Named Entity Recognition model and saves model and tokeniser to local."""
 
-    def __init__(self):
+    def __init__(self, args):
         super().__init__()
-        self.device = "mps" if torch.backends.mps.is_available() else "cpu"
-        self.max_length = self.config["max_length"]
-        self.train_batch_size = self.config["train_batch_size"]
-        self.valid_batch_size = self.config["valid_batch_size"]
-        self.epochs = self.config["epochs"]
-        self.learning_rate = self.config["learning_rate"]
-        self.max_gradient_norm = self.config["max_gradient_norm"]
-        self.df_sample_size = self.config["df_sample_size"]
-        self.train_size = self.config["train_size"]
-        self.seed = self.config["seed"]
-        self.hugging_face_model_path = self.config["hugging_face_model_path"]
-        self.model_save_path = self.config["model_save_path"]
-        self.tokenizer_save_path = self.config["tokenizer_save_path"]
+        self.device = args.device
+        self.max_length = args.max_length
+        self.train_batch_size = args.train_batch_size
+        self.valid_batch_size = args.valid_batch_size
+        self.epochs = args.epochs
+        self.learning_rate = args.learning_rate
+        self.max_gradient_norm = args.max_gradient_norm
+        self.df_sample_size = args.df_sample_size
+        self.train_size = args.train_size
+        self.seed = args.seed
+        self.hugging_face_model_path = args.hugging_face_model_path
+        self.model_save_path = args.model_save_path
+        self.tokenizer_save_path = args.tokenizer_save_path
 
     def get_data(self) -> Tuple[pd.DataFrame, Dict, Dict]:
         df, label2id, id2label = load_df_and_label_dicts(self.config)
@@ -136,6 +136,7 @@ class TrainNerModel(BaseModelTraining):
         return None
 
     def training_logic(self):
+        self.logger.info("Starting training logic")
         self.logger.info("Get data")
         df, label2id, id2label = self.get_data()
 
@@ -161,11 +162,105 @@ class TrainNerModel(BaseModelTraining):
         self.logger.info("Save model artifacts")
         self.save_model_artifacts()
 
+        self.logger.info("Finished training logic")
+
 
 if __name__ == "__main__":
-    TrainNerModel().training_logic()
+    config = read_yaml_config(path="ner_model/static.yaml")
+    parser = argparse.ArgumentParser()
 
+    parser.add_argument(
+        "--device",
+        "-d",
+        default="mps" if torch.backends.mps.is_available() else "cpu",
+        action="store",
+        help="Compute device to use with PyTorch model",
+    )
+    parser.add_argument(
+        "--max_length",
+        "-ml",
+        default=config["max_length"],
+        action="store",
+        help="Max length of token sequences",
+    )
+    parser.add_argument(
+        "--train_batch_size",
+        "-tbs",
+        default=config["train_batch_size"],
+        action="store",
+        help="Training data batch size",
+    )
+    parser.add_argument(
+        "--valid_batch_size",
+        "-vbs",
+        default=config["valid_batch_size"],
+        action="store",
+        help="Validation data batch size",
+    )
+    parser.add_argument(
+        "--epochs",
+        "-e",
+        default=config["epochs"],
+        action="store",
+        help="Number of training epochs",
+    )
+    parser.add_argument(
+        "--learning_rate",
+        "-lr",
+        default=config["learning_rate"],
+        action="store",
+        help="Learning rate for optimizer",
+    )
+    parser.add_argument(
+        "--max_gradient_norm",
+        "-mgn",
+        default=config["max_gradient_norm"],
+        action="store",
+        help="Maxium gradient normalisation parameter for gradient clipping",
+    )
+    parser.add_argument(
+        "--df_sample_size",
+        "-dss",
+        default=config["df_sample_size"],
+        action="store",
+        help="Percentage of df to use for training model",
+    )
+    parser.add_argument(
+        "--train_size",
+        "-ts",
+        default=config["train_size"],
+        action="store",
+        help="Percentage data to use for training vs test data",
+    )
+    parser.add_argument(
+        "--seed",
+        "-s",
+        default=config["seed"],
+        action="store",
+        help="Seed value",
+    )
+    parser.add_argument(
+        "--hugging_face_model_path",
+        "-hfmp",
+        default=config["hugging_face_model_path"],
+        action="store",
+        help="Path to hugging face model on hugging face hub",
+    )
+    parser.add_argument(
+        "--model_save_path",
+        "-msp",
+        default=config["model_save_path"],
+        action="store",
+        help="Path to save model locally",
+    )
+    parser.add_argument(
+        "--tokenizer_save_path",
+        "-tsp",
+        default=config["tokenizer_save_path"],
+        action="store",
+        help="Path to save tokenizer locally",
+    )
 
-# how to provide options for yaml or arg parser
-# create helpers to load yaml and data files - take out of other files too
-# run poetry shell to make sure this works
+    args = parser.parse_args()
+
+    TrainNerModel(args=args).training_logic()

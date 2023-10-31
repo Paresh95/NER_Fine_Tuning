@@ -1,11 +1,11 @@
               precision    recall  f1-score   support
 
-         geo       0.08      0.22      0.12         9
+         geo       0.18      0.22      0.20         9
          gpe       0.00      0.00      0.00         2
-         org       0.03      0.11      0.05         9
+         org       0.04      0.11      0.06         9
          per       0.00      0.00      0.00         1
          tim       0.00      0.00      0.00         5
 
-   micro avg       0.02      0.12      0.04        26
-   macro avg       0.02      0.07      0.03        26
-weighted avg       0.04      0.12      0.06        26
+   micro avg       0.02      0.12      0.03        26
+   macro avg       0.04      0.07      0.05        26
+weighted avg       0.08      0.12      0.09        26

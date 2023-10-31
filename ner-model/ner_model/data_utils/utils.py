@@ -18,13 +18,29 @@ def read_yaml_config(path: str) -> Dict:
     return {}
 
 
-def load_df_and_label_dicts(config: Dict) -> Tuple[pd.DataFrame, Dict, Dict]:
-    df = pd.read_csv(config["preprocess_data_path"])
-    with open(config["label2id_path"], "r") as f:
-        label2id = json.load(f)
-    with open(config["id2label_path"], "r") as f:
+def write_json_to_disk(json_file: Dict, path: str) -> None:
+    with open(path, "w") as fp:
+        json.dump(json_file, fp)
+    return None
+
+
+def load_id2label(path: str) -> Dict:
+    with open(path, "r") as f:
         id2label = json.load(f)
         id2label = {int(k): v for k, v in id2label.items()}
+        return id2label
+
+
+def load_label2id(path: str) -> Dict:
+    with open(path, "r") as f:
+        label2id = json.load(f)
+    return label2id
+
+
+def load_df_and_label_dicts(config: Dict) -> Tuple[pd.DataFrame, Dict, Dict]:
+    df = pd.read_csv(config["preprocess_data_path"])
+    label2id = load_label2id(config["label2id_path"])
+    id2label = load_id2label(config["id2label_path"])
     return df, label2id, id2label
 
 

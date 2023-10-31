@@ -60,7 +60,7 @@ class dataset(Dataset):
         labels.insert(-1, "O")  # add outside label for [SEP] token
 
         # step 3: truncating/padding
-        maxlen = self.max_len
+        maxlen = int(self.max_len)
 
         if len(tokenized_sentence) > maxlen:
             # truncate

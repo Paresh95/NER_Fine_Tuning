@@ -1,7 +1,6 @@
-import yaml
-import json
 import pandas as pd
 from typing import Dict, Tuple
+from ner_model.data_utils.utils import read_yaml_config, write_json_to_disk
 
 
 def preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int], Dict[int, str]]:
@@ -25,13 +24,10 @@ def preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int], Dict[int
 
 
 if __name__ == "__main__":
-    with open("ner_model/static.yaml", "r") as f:
-        config = yaml.safe_load(f.read())
+    config = read_yaml_config(path="ner_model/static.yaml")
     df = pd.read_csv(config["raw_data_path"], encoding="unicode_escape")
     print(df.shape)
     df, label2id, id2label = preprocess(df)
     df.to_csv(config["preprocess_data_path"])
-    with open(config["label2id_path"], "w") as fp:
-        json.dump(label2id, fp)
-    with open(config["id2label_path"], "w") as fp:
-        json.dump(id2label, fp)
+    write_json_to_disk(label2id, config["label2id_path"])
+    write_json_to_disk(id2label, config["id2label_path"])
