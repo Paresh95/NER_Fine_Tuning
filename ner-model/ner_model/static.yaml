@@ -4,8 +4,8 @@ label2id_path: "data/label2id.json"
 id2label_path: "data/id2label.json"
 hugging_face_model_path: "bert-base-uncased"
 classification_report_path: "data/classification_report.txt"
-model_path: "data/model"
-tokenizer_path: "data/tokenizer"
+model_save_path: "data/model"
+tokenizer_save_path: "data/tokenizer"
 max_length: 128
 train_batch_size: 128
 valid_batch_size: 128
