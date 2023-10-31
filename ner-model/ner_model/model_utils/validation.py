@@ -37,7 +37,7 @@ def valid(
                 if verbose:
                     print(f"Validation loss per 100 evaluation steps: {loss_step}")
 
-            # compute evaluation accuracy
+            # compute validation accuracy
             flattened_targets = targets.view(-1)  # shape (batch_size * seq_len,)
             active_logits = eval_logits.view(
                 -1, model.num_labels
@@ -45,7 +45,7 @@ def valid(
             flattened_predictions = torch.argmax(
                 active_logits, axis=1
             )  # shape (batch_size * seq_len,)
-            # now, use mask to determine where we should compare predictions
+            # use mask to determine where we should compare predictions
             # # with targets (includes [CLS] and [SEP] token predictions)
             active_accuracy = (
                 mask.view(-1) == 1

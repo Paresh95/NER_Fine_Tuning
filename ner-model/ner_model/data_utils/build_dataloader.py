@@ -80,8 +80,6 @@ class dataset(Dataset):
         ids = self.tokenizer.convert_tokens_to_ids(tokenized_sentence)
 
         label_ids = [self.label2id[label] for label in labels]
-        # the following line is deprecated
-        # label_ids = [label if label != 0 else -100 for label in label_ids]
 
         return {
             "ids": torch.tensor(ids, dtype=torch.long),
