@@ -8,7 +8,8 @@ from seqeval.metrics import classification_report
 from ner_model.data_utils.utils import (
     create_train_test,
     read_yaml_config,
-    load_df_and_label_dicts,
+    load_id2label,
+    load_label2id,
 )
 from ner_model.model_utils.training import train
 from ner_model.model_utils.validation import valid
@@ -48,9 +49,14 @@ class TrainNerModel(BaseModelTraining):
         self.hugging_face_model_path = args.hugging_face_model_path
         self.model_save_path = args.model_save_path
         self.tokenizer_save_path = args.tokenizer_save_path
+        self.data_path = args.data_path
+        self.label2id_path = args.label2id_path
+        self.id2label_path = args.id2label_path
 
     def get_data(self) -> Tuple[pd.DataFrame, Dict, Dict]:
-        df, label2id, id2label = load_df_and_label_dicts(self.config)
+        df = pd.read_csv(self.data_path)
+        label2id = load_label2id(self.label2id_path)
+        id2label = load_id2label(self.id2label_path)
         return df, label2id, id2label
 
     def split_data(self, df: pd.DataFrame, label2id: Dict) -> Tuple[Dataset, Dataset]:
@@ -259,6 +265,27 @@ if __name__ == "__main__":
         default=config["tokenizer_save_path"],
         action="store",
         help="Path to save tokenizer locally",
+    )
+    parser.add_argument(
+        "--data_path",
+        "-dp",
+        default=config["preprocess_data_path"],
+        action="store",
+        help="Path to local data",
+    )
+    parser.add_argument(
+        "--label2id_path",
+        "-l2idp",
+        default=config["label2id_path"],
+        action="store",
+        help="Path to local label2id dictionary",
+    )
+    parser.add_argument(
+        "--id2label_path",
+        "-i2ldp",
+        default=config["id2label_path"],
+        action="store",
+        help="Path to local id2label dictionary",
     )
 
     args = parser.parse_args()

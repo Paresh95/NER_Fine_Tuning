@@ -37,13 +37,6 @@ def load_label2id(path: str) -> Dict:
     return label2id
 
 
-def load_df_and_label_dicts(config: Dict) -> Tuple[pd.DataFrame, Dict, Dict]:
-    df = pd.read_csv(config["preprocess_data_path"])
-    label2id = load_label2id(config["label2id_path"])
-    id2label = load_id2label(config["id2label_path"])
-    return df, label2id, id2label
-
-
 def create_train_test(
     df: pd.DataFrame,
     train_size: float,

@@ -36,7 +36,6 @@ class InferenceNerModel(BaseModelInference):
         self.tokenizer_save_path = args.tokenizer_save_path
         self.model_save_path = args.model_save_path
         self.max_length = args.max_length
-        self.label2id_path = args.label2id_path
         self.sentence = args.sentence
 
     def load_model_artifacts(self) -> Tuple[BertTokenizer, BertForTokenClassification]:

@@ -58,4 +58,5 @@ def manual_inference_pipeline(
             word_level_predictions.append(pair[1])
 
     words = re.findall(r"\b\w+\b", sentence)
-    return list(zip(words, word_level_predictions))
+    result = list(zip(words, word_level_predictions))
+    return result
