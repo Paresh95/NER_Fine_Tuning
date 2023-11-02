@@ -13,8 +13,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Build and push Docker image
+    - name: Set up Docker Buildx
+      uses: docker/setup-docker-buildx-action@v1
+
+    - name: Login to DockerHub
       run: |
         echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Build and Push
+      run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_model:latest .
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_model:latest
