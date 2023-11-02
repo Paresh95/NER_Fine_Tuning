@@ -5,14 +5,14 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer, BertForTokenClassification
 from seqeval.metrics import classification_report
-from ner_model.data_utils.utils import (
+from src.data_utils.utils import (
     create_train_test,
     read_yaml_config,
     load_id2label,
     load_label2id,
 )
-from ner_model.model_utils.training import train
-from ner_model.model_utils.validation import valid
+from src.model_utils.training import train
+from src.model_utils.validation import valid
 from abc import ABC, abstractmethod
 from typing import Tuple, Dict, List
 
@@ -172,7 +172,7 @@ class TrainNerModel(BaseModelTraining):
 
 
 if __name__ == "__main__":
-    config = read_yaml_config(path="ner_model/static.yaml")
+    config = read_yaml_config(path="src/static.yaml")
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

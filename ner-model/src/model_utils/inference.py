@@ -3,7 +3,7 @@ from transformers import BertTokenizer, BertForTokenClassification
 from typing import List
 from transformers import pipeline
 import re
-from ner_model.data_utils.utils import read_yaml_config, load_id2label
+from src.data_utils.utils import read_yaml_config, load_id2label
 
 
 def auto_inference_pipeline(
@@ -45,7 +45,7 @@ def manual_inference_pipeline(
     active_logits = logits.view(-1, model.num_labels)
     flattened_predictions = torch.argmax(active_logits, axis=1)
     tokens = tokenizer.convert_ids_to_tokens(ids.squeeze().tolist())
-    config = read_yaml_config(path="ner_model/static.yaml")
+    config = read_yaml_config(path="src/static.yaml")
     id2label = load_id2label(config["id2label_path"])
     token_predictions = [id2label[i] for i in flattened_predictions.cpu().numpy()]
     wp_preds = list(zip(tokens, token_predictions))

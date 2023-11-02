@@ -2,7 +2,7 @@ import yaml
 import json
 import pandas as pd
 from typing import Tuple, Dict
-from ner_model.data_utils.build_dataloader import dataset
+from src.data_utils.build_dataloader import dataset
 from torch.utils.data import Dataset
 from transformers import BertTokenizer
 

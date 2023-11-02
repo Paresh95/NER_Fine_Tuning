@@ -2,7 +2,7 @@
 
 
 ```
-poetry run uvicorn ner_model.run_api:app --host 0.0.0.0 --port 8000 --reload
+poetry run uvicorn src.run_api:app --host 0.0.0.0 --port 8000 --reload
 
 
 curl -X 'POST' 'http://0.0.0.0:8000/predict/' \

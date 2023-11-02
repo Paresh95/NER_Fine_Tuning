@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import Dict, Tuple
-from ner_model.data_utils.utils import read_yaml_config, write_json_to_disk
+from src.data_utils.utils import read_yaml_config, write_json_to_disk
 
 
 def preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int], Dict[int, str]]:
@@ -24,7 +24,7 @@ def preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int], Dict[int
 
 
 if __name__ == "__main__":
-    config = read_yaml_config(path="ner_model/static.yaml")
+    config = read_yaml_config(path="src/static.yaml")
     df = pd.read_csv(config["raw_data_path"], encoding="unicode_escape")
     print(df.shape)
     df, label2id, id2label = preprocess(df)

@@ -7,13 +7,13 @@ from transformers import (
     AutoTokenizer,
     AutoModelForTokenClassification,
 )
-from ner_model.data_utils.utils import read_yaml_config
-from ner_model.model_utils.inference import manual_inference_pipeline
+from src.data_utils.utils import read_yaml_config
+from src.model_utils.inference import manual_inference_pipeline
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 
-config = read_yaml_config(path="ner_model/static.yaml")
+config = read_yaml_config(path="src/static.yaml")
 tokenizer = AutoTokenizer.from_pretrained(config["tokenizer_save_path"])
 model = AutoModelForTokenClassification.from_pretrained(config["model_save_path"])
 device = "mps" if torch.backends.mps.is_available() else "cpu"
@@ -45,4 +45,4 @@ def predict(item: Item):
 
 
 if __name__ == "__main__":
-    uvicorn.run("ner_model.run_api:app", reload=True, port=8000, host="0.0.0.0")
+    uvicorn.run("src.run_api:app", reload=True, port=8000, host="0.0.0.0")

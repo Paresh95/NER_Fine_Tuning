@@ -19,6 +19,6 @@ repos:
   #     - id: coverage
   #       name: coverage
   #       language: system
-  #       entry: bash -c 'poetry run pytest -v --cov=ner_model --cov-fail-under=0 --cov-report term-missing' # if tests then change from 0
+  #       entry: bash -c 'poetry run pytest -v --cov=src --cov-fail-under=0 --cov-report term-missing' # if tests then change from 0
   #       types: [python]
   #       pass_filenames: false

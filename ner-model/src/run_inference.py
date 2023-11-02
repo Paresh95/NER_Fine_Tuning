@@ -9,8 +9,8 @@ from transformers import (
     BertForTokenClassification,
 )
 from abc import ABC, abstractmethod
-from ner_model.model_utils.inference import manual_inference_pipeline
-from ner_model.data_utils.utils import read_yaml_config
+from src.model_utils.inference import manual_inference_pipeline
+from src.data_utils.utils import read_yaml_config
 
 
 class BaseModelInference(ABC):
@@ -71,7 +71,7 @@ class InferenceNerModel(BaseModelInference):
 
 if __name__ == "__main__":
     sentence = "England has a capital called London. On wednesday, the Prime Minister will give a presentation"
-    config = read_yaml_config(path="ner_model/static.yaml")
+    config = read_yaml_config(path="src/static.yaml")
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
