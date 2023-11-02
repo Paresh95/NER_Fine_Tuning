@@ -137,8 +137,8 @@ class TrainNerModel(BaseModelTraining):
             self.logger.error(f"Error writing to classification report: {e}")
 
     def save_model_artifacts(self) -> None:
-        self.tokenizer.save_pretrained(self.model_save_path)
-        self.trained_model.save_pretrained(self.tokenizer_save_path)
+        self.tokenizer.save_pretrained(self.tokenizer_save_path)
+        self.trained_model.save_pretrained(self.model_save_path)
         return None
 
     def training_logic(self):

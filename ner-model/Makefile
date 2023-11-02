@@ -1,8 +1,13 @@
 init-local-env:
 	curl -sSL https://install.python-poetry.org | python3 -
 	poetry env use 3.10.5
+	poetry shell
 	poetry install
+	mkdir logs
 
+preprocess-data:
+	poetry run python ner_model/data_utils/preprocess_raw_data.py
+	
 run-training-locally:
 	poetry run python ner_model/run_training.py
 
