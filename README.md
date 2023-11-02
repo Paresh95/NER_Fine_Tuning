@@ -1,7 +1,7 @@
 # Train & Deploy Named Entity Recognition Model
 
 <p align="center">
-  <img src="images/ner_example.png" />
+  <img src="images/ner_example.jpeg" />
 </p>
 
 
