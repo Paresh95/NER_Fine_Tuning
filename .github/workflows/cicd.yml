@@ -1,0 +1,20 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: macos-12
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build and push Docker image
+      run: |
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_model:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_model:latest

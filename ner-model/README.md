@@ -41,3 +41,6 @@ curl -X 'POST' 'http://0.0.0.0:8000/predict/' \
 ```
 docker-compose up
 ```
+
+
+CI/CD with docker
