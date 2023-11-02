@@ -1,5 +1,5 @@
 FROM python:3.10.5-slim
-LABEL description="Entity recognition service"
+LABEL description="Named entity recognition service"
 ENV PYTHONUNBUFFERED=1 \
     POETRY_VERSION=1.6.1 \
     POETRY_VIRTUALENVS_CREATE=false \

@@ -27,7 +27,7 @@ curl -X 'POST' 'http://0.0.0.0:8000/test/'
 # However, when running below curl request in docker
 # my container crashes and I get error - curl: (52) Empty reply from server
 # Stems from manual_inference_pipeline when running 'outputs = model(ids, mask)'
-# I think there is a compute or memory incompatibility issue - WIP
+# I think there is a compute M1 mac issue or memory incompatibility issue - WIP
 
 curl -X 'POST' 'http://0.0.0.0:8000/predict/' \
      -H 'Content-Type: application/json' \
@@ -35,3 +35,9 @@ curl -X 'POST' 'http://0.0.0.0:8000/predict/' \
 ```
 
 - Options tried to fix above - different docker base image, expand memory on docker hub, retrain model with cpu
+
+
+
+```
+docker-compose up
+```

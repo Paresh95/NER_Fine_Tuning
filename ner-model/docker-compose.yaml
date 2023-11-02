@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  ner-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - POETRY_VERSION=1.6.1
+      - POETRY_VIRTUALENVS_CREATE=false
+      - PYTHONPATH="/myapp:${PYTHONPATH}"
+    volumes:
+      - .:/myapp
