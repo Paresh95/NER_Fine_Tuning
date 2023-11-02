@@ -15,4 +15,4 @@ RUN python -m poetry install --no-root --no-dev
 COPY . /myapp
 
 EXPOSE 8000
-CMD ["poetry", "run", "uvicorn", "src.run_api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry", "run", "uvicorn", "src.main.fine_tune.run_api:app", "--host", "0.0.0.0", "--port", "8000"]

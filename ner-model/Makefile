@@ -15,7 +15,7 @@ run-inference-locally:
 	poetry run python src/run_inference.py
 
 run-api-locally:
-	poetry run python src/run_api.py
+	poetry run python src/main/fine_tune/run_api:apprun_api.py
 
 api-test:
 	curl -X 'POST' 'http://0.0.0.0:8000/test/'

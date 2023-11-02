@@ -8,30 +8,16 @@ from transformers import (
     BertTokenizer,
     BertForTokenClassification,
 )
-from abc import ABC, abstractmethod
 from src.model_utils.inference import manual_inference_pipeline
 from src.data_utils.utils import read_yaml_config
-
-
-class BaseModelInference(ABC):
-    def __init__(self):
-        logging.basicConfig(
-            filename="logs/ner_model_inference.log",
-            level=logging.DEBUG,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-        )
-        self.logger = logging
-
-    @abstractmethod
-    def inference_logic(self) -> None:
-        raise NotImplementedError
+from src.model_utils.base_inference import BaseModelInference
 
 
 class InferenceNerModel(BaseModelInference):
     """Conducts inference on pre-trained Named Entity Recognition model."""
 
-    def __init__(self, args):
-        super().__init__()
+    def __init__(self, logging_file_path, args):
+        super().__init__(logging_file_path)
         self.device = args.device
         self.tokenizer_save_path = args.tokenizer_save_path
         self.model_save_path = args.model_save_path
@@ -117,4 +103,4 @@ if __name__ == "__main__":
         help="Sentence to be scored",
     )
     args = parser.parse_args()
-    print(InferenceNerModel(args=args).inference_logic())
+    print(InferenceNerModel(logging_file_path=config['inference_model_log_path'], args=args).inference_logic())
