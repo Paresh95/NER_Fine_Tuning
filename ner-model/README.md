@@ -17,8 +17,8 @@ Run on docker
 
 
 ```
-docker build -t my_ner_model:latest .
-docker run -p 8000:8000 my_ner_model:latest
+docker build -t my_ner_app:latest .
+docker run -p 8000:8000 my_ner_app:latest
 
 # test request works
 curl -X 'POST' 'http://0.0.0.0:8000/test/'

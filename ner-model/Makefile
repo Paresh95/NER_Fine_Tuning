@@ -26,8 +26,8 @@ api-predict:
      -d '{"text":"England has a capital called London. On wednesday, the Prime Minister will give a presentation"}'
 
 deploy-dockerfile:
-	docker build -t my_ner_model:latest .
-	docker run -p 8000:8000 my_ner_model:latest
+	docker build -t my_ner_app:latest .
+	docker run -p 8000:8000 my_ner_app:latest
 
 deploy-docker-compose:
 	docker-compose up
