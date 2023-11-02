@@ -31,3 +31,7 @@ deploy-dockerfile:
 
 deploy-docker-compose:
 	docker-compose up
+
+delete-local-env:
+	exit
+	poetry env remove 3.10
