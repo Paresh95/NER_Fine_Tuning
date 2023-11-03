@@ -1,13 +1,15 @@
 import argparse
-import logging
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer, BertForTokenClassification
-from abc import ABC, abstractmethod
 from typing import Tuple, Dict, List
 from seqeval.metrics import classification_report
-from peft import get_peft_config, PeftModel, PeftConfig, get_peft_model, LoraConfig, TaskType
+from peft import (
+    get_peft_model,
+    LoraConfig,
+    TaskType,
+)
 from src.data_utils.utils import (
     create_train_test,
     read_yaml_config,
@@ -89,10 +91,15 @@ class TrainLoraNerModel(BaseModelTraining):
         )
         model.to(self.device)
         peft_config = LoraConfig(
-            task_type=TaskType.TOKEN_CLS, inference_mode=False, r=16, lora_alpha=16, lora_dropout=0.1, bias="all"
+            task_type=TaskType.TOKEN_CLS,
+            inference_mode=False,
+            r=16,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="all",
         )
         lora_model = get_peft_model(model, peft_config)
-        
+
         optimizer = torch.optim.Adam(params=model.parameters(), lr=self.learning_rate)
         self.trained_model = train(
             training_loader,
@@ -283,5 +290,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    TrainLoraNerModel(logging_file_path=config['train_lora_model_log_path'], 
-                      args=args).training_logic()
+    TrainLoraNerModel(
+        logging_file_path=config["train_lora_model_log_path"], args=args
+    ).training_logic()

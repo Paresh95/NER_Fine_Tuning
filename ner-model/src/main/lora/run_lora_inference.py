@@ -1,4 +1,3 @@
-import logging
 import torch
 import argparse
 from typing import Tuple, List
@@ -33,7 +32,10 @@ class InferenceNerLoraModel(BaseModelInference):
         tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_save_path)
         lora_config = PeftConfig.from_pretrained(self.lora_model_save_path)
         base_model = AutoModelForTokenClassification.from_pretrained(
-            lora_config.base_model_name_or_path, num_labels=len(id2label), id2label=id2label, label2id=label2id
+            lora_config.base_model_name_or_path,
+            num_labels=len(id2label),
+            id2label=id2label,
+            label2id=label2id,
         )
         lora_model = PeftModel.from_pretrained(base_model, self.lora_model_save_path)
         return tokenizer, lora_model
@@ -118,6 +120,10 @@ if __name__ == "__main__":
         action="store",
         help="Path to local id2label dictionary",
     )
-    
+
     args = parser.parse_args()
-    print(InferenceNerLoraModel(logging_file_path=config['inference_model_log_path'], args=args).inference_logic())
+    print(
+        InferenceNerLoraModel(
+            logging_file_path=config["inference_model_log_path"], args=args
+        ).inference_logic()
+    )

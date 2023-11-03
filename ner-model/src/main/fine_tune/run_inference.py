@@ -1,4 +1,3 @@
-import logging
 import torch
 import argparse
 from typing import Tuple, List
@@ -103,4 +102,8 @@ if __name__ == "__main__":
         help="Sentence to be scored",
     )
     args = parser.parse_args()
-    print(InferenceNerModel(logging_file_path=config['inference_model_log_path'], args=args).inference_logic())
+    print(
+        InferenceNerModel(
+            logging_file_path=config["inference_model_log_path"], args=args
+        ).inference_logic()
+    )

@@ -1,5 +1,4 @@
 import argparse
-import logging
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -276,4 +275,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    TrainNerModel(logging_file_path=config['train_model_log_path'], args=args).training_logic()
+    TrainNerModel(
+        logging_file_path=config["train_model_log_path"], args=args
+    ).training_logic()

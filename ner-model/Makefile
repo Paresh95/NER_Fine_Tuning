@@ -7,7 +7,7 @@ init-local-env:
 
 preprocess-data:
 	poetry run python src/data_utils/preprocess_raw_data.py
-	
+
 run-training-locally:
 	poetry run python src/run_training.py
 
