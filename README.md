@@ -12,8 +12,7 @@ This repo contains:
 - The option of using accelerate for distributed training
 - Model inference scripts
 - FastAPI script to create model endpoint
-- Dockerfile to deploy model
-- GitHub actions CI/CD pipeline
+- GitHub actions CI/CD pipeline to deploy Docker image to my Docker Hub 
 
 
 ## How to run this code
