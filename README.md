@@ -6,6 +6,13 @@
 
 
 ## What is this repo about?
+This repository contains code to train and deploy a Named Entity Recognition (NER) model. 
+
+
+NER is a process in natural language processing that involves identifying and categorising key information (entities) in text into predefined categories, such as names of people, organisations, locations, dates, and other specific data. It enables the extraction of structured information from unstructured text, facilitating data analysis and machine understanding of documents.
+
+
+## What is in this repo?
 This repo contains:
 
 - Scripts to fine tune a BERT model for Named Entity Recognition with the traditional approach (train model head weights) or LoRA.
@@ -15,7 +22,7 @@ This repo contains:
 - GitHub actions CI/CD pipeline to deploy Docker image to my Docker Hub 
 
 
-## How to run this code
+## How do you run the code?
 
 1. To set up the local environment
 
