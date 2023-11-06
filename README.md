@@ -57,7 +57,8 @@ make api-predict
 ```
 
 6. To deploy the dockerfile
-- Note the `make api-predict` command crashes the container with error `curl: (52) Empty reply from server`. This stems from the code `outputs = model(ids, mask)`. The API works as the test runs, however, I think there is a compute M1 mac issue or memory incompatibility issue.
+- Note the `make api-predict` command crashes the container with error `curl: (52) Empty reply from server`. This stems from the code `outputs = model(ids, mask)`. The API works for the test runs, however, I think there is a compute M1 mac issue or memory incompatibility issue.
+
 ```
 make deploy-dockerfile
 # open new terminal
@@ -77,6 +78,11 @@ make api-predict
 ```
 make delete-local-env
 ```
+
+9. To use the CI/CD pipeline to add the image to your own Docker Hub
+
+- Add secrets for your `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME` 
+To do this: repository settings > Secrets and variables > Actions > Repository secrets > New repository secret. 
 
 Note, these commands default to using the traditional approach for fine-tuning (training the model head). To use LoRA change the filepaths specified in the `Makefile` and `Dockerfile`.
 
