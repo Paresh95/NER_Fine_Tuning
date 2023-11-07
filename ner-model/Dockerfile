@@ -19,7 +19,7 @@ RUN python -m poetry install --no-root --only main && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
-    mkdir logs
+    mkdir app/logs
 
 COPY data/ /app/data/
 COPY logs/ /app/logs/
@@ -52,7 +52,7 @@ RUN python -m poetry install --no-root --only main && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
-    mkdir logs
+    mkdir app/logs
 
 COPY logs/ /app/logs/
 COPY src/data_utils /app/src/data_utils
