@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-12-large
     steps:
       -
         name: Checkout
@@ -22,11 +22,10 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
-        name: Build Docker Image
-        run: |
-          docker build --target inferencer -t ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_app:latest-inference .
-        working-directory: ner-model/
-      - 
-        name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_app:latest-inference
+        name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ner-model/
+          file: ner-model/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my_ner_app:latest
