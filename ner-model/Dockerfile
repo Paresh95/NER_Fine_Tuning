@@ -22,7 +22,6 @@ RUN python -m poetry install --no-root --only main && \
     mkdir app/logs
 
 COPY data/ /app/data/
-COPY logs/ /app/logs/
 COPY src/data_utils /app/src/data_utils
 COPY src/training /app/src/training
 COPY src/__init__.py /app/src/
@@ -54,7 +53,6 @@ RUN python -m poetry install --no-root --only main && \
     rm -rf /var/lib/apt/lists/* \
     mkdir app/logs
 
-COPY logs/ /app/logs/
 COPY src/data_utils /app/src/data_utils
 COPY src/inference /app/src/inference
 COPY src/__init__.py /app/src/
