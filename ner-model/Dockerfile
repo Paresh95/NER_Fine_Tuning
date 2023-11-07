@@ -28,7 +28,7 @@ COPY src/__init__.py /app/src/
 COPY src/static.yaml /app/src/
 COPY Makefile /app/src/
 
-CMD ["poetry",  "run",  "python",  "src/training/main/run_training.py"]
+RUN poetry run python src/training/main/run_training.py
 
 # --- Stage 2: Inference ---
 FROM python:3.10.5-slim as inferencer
