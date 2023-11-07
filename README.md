@@ -15,7 +15,7 @@ NER is a process in natural language processing that involves identifying and ca
 ## What is in this repo?
 This repo contains:
 
-- Scripts to fine tune a BERT model for Named Entity Recognition with the traditional approach (train model head weights) or LoRA.
+- Scripts to fine tune a DistilBERT model for Named Entity Recognition with the traditional approach (train model head weights) or LoRA.
 - The option of using accelerate for distributed training
 - Model inference scripts
 - FastAPI script to create model endpoint
@@ -90,7 +90,8 @@ Note, these commands default to using the traditional approach for fine-tuning (
 - Create separate docker image for training or run CI/CD for automated retraining
 - Could add accelerate config file to set parameters
 - Could create two poetry environments, for training and inference. This way you could have a separate `pyproject.toml`. 
+- A better option could be to train the model separately and save each version to an S3 bucket or local. If so the bucket should be mounted to the inference container. A local example is to use `docker run -p 8000:8000 -v /Users/path_to_folder:/app/data my_ner_app:latest-inference`. You would also need to remove the Dockerfile lines which copy the model artifacts to the image in the inference build stage. 
 
 
-# Troubleshooting
+## Troubleshooting
 - torch must be `2.0.*` due to segmentation fault error on M1 Macs [see here](https://stackoverflow.com/questions/77290003/segmentation-fault-when-using-sentencetransformer-inside-docker-container)

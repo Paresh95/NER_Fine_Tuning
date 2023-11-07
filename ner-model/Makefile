@@ -26,10 +26,10 @@ api-predict:
      -d '{"text":"England has a capital called London. On wednesday, the Prime Minister will give a presentation"}'
 
 build:
-	docker build -t my_ner_app:latest .
+	docker build -t my_ner_app:latest-inference .
 
 run:
-	docker run -p 8000:8000 my_ner_app:latest
+	docker run -p 8000:8000 my_ner_app:latest-inference
 
 build-training:
 	docker build --target trainer -t my_ner_app:latest-training .
