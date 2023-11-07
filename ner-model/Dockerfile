@@ -18,7 +18,7 @@ RUN python -m poetry install --no-root --only main && \
     apt-get remove -y gcc python3-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/* &&\
     mkdir app/logs
 
 COPY data/ /app/data/
@@ -50,7 +50,7 @@ RUN python -m poetry install --no-root --only main && \
     apt-get remove -y gcc python3-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/* &&\
     mkdir app/logs
 
 COPY src/data_utils /app/src/data_utils
