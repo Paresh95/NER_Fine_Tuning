@@ -57,7 +57,6 @@ make api-predict
 ```
 
 6. To deploy the dockerfile
-- Note the `make api-predict` command crashes the container with error `curl: (52) Empty reply from server`. This stems from the code `outputs = model(ids, mask)`. The API works for the test runs, however, I think there is a compute M1 mac issue or memory incompatibility issue.
 
 ```
 make deploy-dockerfile
@@ -90,3 +89,7 @@ Note, these commands default to using the traditional approach for fine-tuning (
 - Store model in AWS S3 bucket
 - Create separate docker image for training or run CI/CD for automated retraining
 - Could add accelerate config file to set parameters
+
+
+# Troubleshooting
+- torch must be `2.0.*` due to segmentation fault error on M1 Macs [see here](https://stackoverflow.com/questions/77290003/segmentation-fault-when-using-sentencetransformer-inside-docker-container)
