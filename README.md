@@ -89,6 +89,7 @@ Note, these commands default to using the traditional approach for fine-tuning (
 - Store model in AWS S3 bucket
 - Create separate docker image for training or run CI/CD for automated retraining
 - Could add accelerate config file to set parameters
+- Could create two poetry environments, for training and inference. This way you could have a separate `pyproject.toml`. 
 
 
 # Troubleshooting
