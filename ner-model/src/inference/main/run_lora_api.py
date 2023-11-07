@@ -9,7 +9,7 @@ from transformers import (
 )
 from peft import PeftConfig, PeftModel
 from src.data_utils.utils import read_yaml_config, load_label2id, load_id2label
-from src.model_utils.inference import manual_inference_pipeline
+from src.inference.utils import manual_inference_pipeline
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
@@ -56,5 +56,5 @@ def predict(item: Item):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "src.main.lora.run_lora_api:app", reload=True, port=8000, host="0.0.0.0"
+        "src.inference.main.run_api:app", reload=True, port=8000, host="0.0.0.0"
     )

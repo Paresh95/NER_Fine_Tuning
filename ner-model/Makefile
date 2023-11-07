@@ -9,13 +9,13 @@ preprocess-data:
 	poetry run python src/data_utils/preprocess_raw_data.py
 
 run-training-locally:
-	poetry run python src/run_training.py
+	poetry run python src/training/main/run_training.py
 
 run-inference-locally:
-	poetry run python src/run_inference.py
+	poetry run python src/inference/main/run_inference.py
 
 run-api-locally:
-	poetry run python src/main/fine_tune/run_api:apprun_api.py
+	poetry run python src/inference/main/run_api.py
 
 api-test:
 	curl -X 'POST' 'http://0.0.0.0:8000/test/'

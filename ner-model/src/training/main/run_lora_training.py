@@ -3,20 +3,25 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer, BertForTokenClassification
-from seqeval.metrics import classification_report
 from typing import Tuple, Dict, List
+from seqeval.metrics import classification_report
+from peft import (
+    get_peft_model,
+    LoraConfig,
+    TaskType,
+)
 from src.data_utils.utils import (
     create_train_test,
     read_yaml_config,
     load_id2label,
     load_label2id,
 )
-from src.model_utils.training import train
-from src.model_utils.validation import valid
-from src.model_utils.base_training import BaseModelTraining
+from src.training.utils import train
+from src.training.utils import valid
+from src.training.base import BaseModelTraining
 
 
-class TrainNerModel(BaseModelTraining):
+class TrainLoraNerModel(BaseModelTraining):
     """Trains Named Entity Recognition model and saves model and tokeniser to local."""
 
     def __init__(self, logging_file_path, args):
@@ -32,7 +37,7 @@ class TrainNerModel(BaseModelTraining):
         self.train_size = args.train_size
         self.seed = args.seed
         self.hugging_face_model_path = args.hugging_face_model_path
-        self.model_save_path = args.model_save_path
+        self.lora_model_save_path = args.lora_model_save_path
         self.tokenizer_save_path = args.tokenizer_save_path
         self.data_path = args.data_path
         self.label2id_path = args.label2id_path
@@ -85,10 +90,20 @@ class TrainNerModel(BaseModelTraining):
             label2id=label2id,
         )
         model.to(self.device)
+        peft_config = LoraConfig(
+            task_type=TaskType.TOKEN_CLS,
+            inference_mode=False,
+            r=16,
+            lora_alpha=16,
+            lora_dropout=0.1,
+            bias="all",
+        )
+        lora_model = get_peft_model(model, peft_config)
+
         optimizer = torch.optim.Adam(params=model.parameters(), lr=self.learning_rate)
         self.trained_model = train(
             training_loader,
-            model,
+            lora_model,
             self.epochs,
             self.max_gradient_norm,
             optimizer,
@@ -123,7 +138,7 @@ class TrainNerModel(BaseModelTraining):
 
     def save_model_artifacts(self) -> None:
         self.tokenizer.save_pretrained(self.tokenizer_save_path)
-        self.trained_model.save_pretrained(self.model_save_path)
+        self.trained_model.save_pretrained(self.lora_model_save_path)
         return None
 
     def training_logic(self):
@@ -238,11 +253,11 @@ if __name__ == "__main__":
         help="Path to hugging face model on hugging face hub",
     )
     parser.add_argument(
-        "--model_save_path",
-        "-msp",
-        default=config["model_save_path"],
+        "--lora_model_save_path",
+        "-lmsp",
+        default=config["lora_model_save_path"],
         action="store",
-        help="Path to save model locally",
+        help="Path to save lora model locally",
     )
     parser.add_argument(
         "--tokenizer_save_path",
@@ -275,6 +290,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    TrainNerModel(
-        logging_file_path=config["train_model_log_path"], args=args
+    TrainLoraNerModel(
+        logging_file_path=config["train_lora_model_log_path"], args=args
     ).training_logic()

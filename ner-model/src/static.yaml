@@ -12,8 +12,8 @@ train_lora_model_log_path: "logs/ner_train_lora_model.log"
 inference_model_log_path: "logs/ner_model_inference.log"
 inference_model_log_path: "logs/ner_lora_model_inference.log"
 max_length: 128
-train_batch_size: 128
-valid_batch_size: 128
+train_batch_size: 32
+valid_batch_size: 32
 epochs: 1
 learning_rate: 0.00001
 max_gradient_norm: 10
