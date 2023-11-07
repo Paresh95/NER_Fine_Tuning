@@ -85,6 +85,8 @@ To do this: repository settings > Secrets and variables > Actions > Repository s
 
 Note, these commands default to using the traditional approach for fine-tuning (training the model head). To use LoRA change the filepaths specified in the `Makefile` and `Dockerfile`.
 
+Currently, this doesn't work as I'm using mac on my local system and linux (ubuntu-latest) for github actions. This causes an incompatibility issue with pytorch where it downloads the GPU version on my local, but cannot on the linux machine. ubuntu-latest has docker preinstalled. Macos does not, and throws errors when trying to install. Can resolve this issue by not running training pipeline in docker image.
+
 ## Future ideas
 - Store model in AWS S3 bucket
 - Create separate docker image for training or run CI/CD for automated retraining
