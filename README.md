@@ -80,7 +80,7 @@ make api-test
 make api-predict
 ```
 
-8. To deploy on K8s locally
+8. To deploy on K8s locally, note you have to build the docker image first.
 
 Open Docker Desktop -> Settings -> Kuberenes -> Tick Enable Kubernetes -> Apply and restart
 ```
