@@ -40,6 +40,10 @@ build-inference:
 deploy-docker-compose:
 	docker-compose up
 
+deploy-k8s:
+	kubectl apply -f k8s/api-deployment.yaml
+	kubectl apply -f k8s/api-service.yaml
+
 delete-local-env:
 	exit
 	poetry env remove 3.10
